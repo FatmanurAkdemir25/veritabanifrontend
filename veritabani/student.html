@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Öğrenci Ders Seçimi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Öğrenci Ders Seçimi</h1>
+        <div>
+            <h3>Atanan Dersler</h3>
+            <ul id="assignedCourses"></ul>
+        </div>
+        <div>
+            <h3>Yeni Dersler</h3>
+            <ul id="availableCourses"></ul>
+        </div>
+        <button id="submitCourses">Dersleri Gönder</button>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const studentId = urlParams.get('studentId');
+
+        // Atanan dersleri listele
+        fetch('https://a57d4c4d-0af2-4bce-b66c-4b0aa6b4174c.mock.pstmn.io/students/${studentId}')
+            .then(response => response.json())
+            .then(data => {
+                const assignedCourses = document.getElementById('assignedCourses');
+                data.courses.forEach(course => {
+                    const li = document.createElement('li');
+                    li.textContent = '${course.courseName}';
+                    assignedCourses.appendChild(li);
+                });
+            });
+
+        // Yeni dersleri listele
+        fetch('https://a57d4c4d-0af2-4bce-b66c-4b0aa6b4174c.mock.pstmn.io/courses')
+            .then(response => response.json())
+            .then(data => {
+                const availableCourses = document.getElementById('availableCourses');
+                data.forEach(course => {
+                    const li = document.createElement('li');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = course.courseId;
+                    li.appendChild(checkbox);
+                    li.appendChild(document.createTextNode(` ${course.courseName}`));
+                    availableCourses.appendChild(li);
+                });
+            });
+
+        // Dersleri gönder
+        document.getElementById('submitCourses').addEventListener('click', () => {
+            const selectedCourses = Array.from(document.querySelectorAll('#availableCourses input:checked'))
+                .map(checkbox => checkbox.value);
+
+            fetch('https://a57d4c4d-0af2-4bce-b66c-4b0aa6b4174c.mock.pstmn.io/students/${studentId}/courses', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ courses: selectedCourses }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Dersler başarıyla gönderildi!');
+                } else {
+                    alert('Ders gönderilirken hata oluştu!');
+                }
+            });
+        });
+    </script>
+    <script src="script.js" defer></script>
+</body>
+</html>

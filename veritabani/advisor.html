@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danışman Onay Sayfası</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Danışman Onay Sayfası</h1>
+        <div>
+            <h3>Öğrenci Bilgileri</h3>
+            <ul id="studentList"></ul>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const advisorId = urlParams.get('advisorId');
+
+        // Öğrenci bilgilerini listele
+        fetch('https://a57d4c4d-0af2-4bce-b66c-4b0aa6b4174c.mock.pstmn.io/advisors/${advisorId}')
+            .then(response => response.json())
+            .then(data => {
+                const studentList = document.getElementById('studentList');
+                data.students.forEach(student => {
+                    const li = document.createElement('li');
+                    li.textContent = 'Ad: ${student.name}, Dersler: ${student.courses.map(c => c.courseName).join(', ')}';
+                    studentList.appendChild(li);
+                });
+            });
+    </script>
+    <script src="script.js" defer></script>
+</body>
+</html>

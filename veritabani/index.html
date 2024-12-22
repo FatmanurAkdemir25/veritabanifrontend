@@ -1,13 +1,60 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Öğrenci Ders Seçim Uygulaması</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giriş Yap</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Giriş Yap</h1>
+        <form id="loginForm">
+            <label for="username">Kullanıcı Adı:</label>
+            <input type="text" id="username" placeholder="Kullanıcı adınızı girin" required>
+            
+            <label for="password">Şifre:</label>
+            <input type="password" id="password" placeholder="Şifrenizi girin" required>
+            
+            <button type="submit">Giriş</button>
+        </form>
+        <div id="errorMessage" style="color: red; margin-top: 10px;"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // Backend'deki login API'yi kullan
+            fetch('https://a57d4c4d-0af2-4bce-b66c-4b0aa6b4174c.mock.pstmn.io/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Giriş başarısız! Kullanıcı adı veya şifre hatalı.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Kullanıcı türüne göre yönlendirme
+                if (data.userType === 'student') {
+                    window.location.href = 'student.html?studentId=${data.userId}';
+                } else if (data.userType === 'advisor') {
+                    window.location.href = 'advisor.html?advisorId=${data.userId}';
+                }
+            })
+            .catch(error => {
+                document.getElementById('errorMessage').textContent = error.message;
+            });
+        });
+    </script>
+    <script src="script.js" defer></script>
+</body>
 </html>
